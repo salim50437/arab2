@@ -1,564 +1,379 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, AlertCircle, Award, ChevronLeft, RefreshCcw, Eye, BookOpen, Edit3 } from 'lucide-react';
-
-const ExamApp = () => {
-  const [currentStep, setCurrentStep] = useState('intro'); // intro, quiz, result
-  const [answers, setAnswers] = useState({});
-  const [textAnswers, setTextAnswers] = useState({});
-  const [showPassage, setShowPassage] = useState(true);
-
-  const examData = {
-    title: "امتحان مادة اللغة العربية - الصف الخامس",
-    subtitle: "الفصل الدراسي الثاني - الدور الأول (صباحي) 2024/2025",
-    totalMarks: 40,
-    sections: [
-      {
-        id: "reading",
-        title: "أولاً: النصوص القرائية (10 درجات)",
-        passage: `الرياضة مهمة جدا لصحتنا، فهي تجعل أجسامنا قوية، وتساعدنا على البقاء نشيطين، فعندما نمارس الرياضة تصبح عضلاتنا وعظامنا أقوى، كما يتحسن تدفق الدم في الجسم، مما يساعد على الوقاية من بعض الأمراض مثل: السكري وأمراض القلب. والرياضة تجعلنا نشعر بالسعادة؛ لأنها تساعد الجسم على إفراز هرمونات تمنحنا شعورا جيدا، والرياضة تعلمنا قيما مهمة مثل : التعاون والصبر والانضباط؛ مما يساعدنا في حياتنا اليومية. كما أن ممارسة الرياضة يمكن أن تفيدنا في الجانب التحصيلي والجانب الاجتماعي، أما في الجانب التحصيلي فهي تساعدنا على التركيز بشكل أفضل، وتحسين أدائنا في المدرسة، وفي الجانب الاجتماعي فإن ممارسة الرياضة مع الأصدقاء تساعدنا على تكوين صداقات جديدة، وتعلمنا كيفية التعامل مع الآخرين والتعاون معهم لتحقيق الفوز. وتوجد أنواع كثيرة من الرياضة مثل كرة القدم وكرة السلة وكرة التنس والسباحة، وركوب الدراجات والجري، ويمكن لكل شخص أن يختار الرياضة التي يحبها ويمارسها بانتظام، وكذلك الأنشطة البسيطة كالقفز على الحبل أو المشي يوميا. لذلك يجب أن نجعل الرياضة جزءا من حياتنا؛ لأنها تجعلنا أكثر صحة وسعادة وتساعدنا على النجاح في دراستنا وحياتنا.`,
-        questions: [
-          {
-            id: "q1_a",
-            text: "1. اختر الإجابة الصحيحة من بين البدائل المعطاة:\nأ. وردت في الفقرة الأولى من النص السابق كلمة (الوقاية) وتعني:",
-            options: ["1. الإضرار", "2. المضاعفة", "3. الحماية", "4. الإصابة"],
-            correct: "3. الحماية",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "q1_b",
-            text: "ب. تكوين صداقات جديدة. كلمة (صداقات) جمع مفردها:",
-            options: ["1. صداقة", "2. صادقة", "3. صادق", "4. صدوق"],
-            correct: "1. صداقة",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "q2",
-            text: "2. استنتج الفكرة العامة للنص السابق.",
-            type: "text",
-            modelAnswer: "أهمية الرياضة وأنواعها وفوائدها (أو ما يكتبه الطالب ويكون متوافقاً مع الفكرة).",
-            marks: 1
-          },
-          {
-            id: "q3",
-            text: "3. للرياضة أنواع كثيرة وأنشطة متعددة. ما الفقرة الدالة على ذلك من النص السابق؟",
-            type: "text",
-            modelAnswer: "الفقرة الرابعة (4) أو الأخيرة.",
-            marks: 1
-          },
-          {
-            id: "q4",
-            text: "4. لماذا يجب أن نجعل الرياضة جزءا من حياتنا كما ورد في الفقرة الرابعة؟",
-            type: "text",
-            modelAnswer: "لأنها تجعلنا أكثر صحة وسعادة وتساعدنا على النجاح في دراستنا وحياتنا.",
-            marks: 2
-          },
-          {
-            id: "q5",
-            text: "5. لممارسة الرياضة فوائد في الجانب التحصيلي والجانب الاجتماعي من خلال فهمك للفقرة الثالثة أكمل الجدول الآتي:",
-            type: "text",
-            modelAnswer: "التحصيلي: تساعد على التركيز وتحسين الأداء المدرسي. الاجتماعي: تكوين صداقات جديدة والتعاون مع الآخرين.",
-            marks: 2
-          },
-          {
-            id: "q6",
-            text: "6. ما الرياضة التي تفضلها؟ ولماذا؟",
-            type: "text",
-            modelAnswer: "يقبل أي رأي منطقي للطالب مع التعليل (مثلاً: السباحة لأنها تقوي الجسم).",
-            marks: 2
-          }
-        ]
-      },
-      {
-        id: "poetry",
-        title: "ثانياً: النصوص الأدبية (10 درجات)",
-        passage: `1. إلى دوحة قد أوى مَرَّةً ... غراب وفي غصنها قدْ جَثَمْ\n2. وكانت بمنقاره جبنة ... يهش إلى أكلها ذو النَّهَمْ\n3. فوافاه مُسْتَرْوِحًا ثَعْلَبٌ ... يهيج حشاه بمثل الصِّرَم\n4. فحيا الغراب وقالَ لَهُ: ... "سلام أيا صاحبي المحترم"\n5. لَعَمْرِي إِنَّكَ باهرُ شَكْلِ ... بديع الملامح مِنْ غير ذم\n6. وريشك زاهي الجمال فأنتَ ... جميلٌ مِنَ الرَّأْسِ حَتَّى القَدَم`,
-        questions: [
-          {
-            id: "p1_a",
-            text: "1. اختر الإجابة الصحيحة من بين البدائل المعطاة:\nأ. عبارة (ذو النهم) الواردة في البيت الثاني تدل على:",
-            options: ["1. المهموم", "2. الشبعان", "3. النائم", "4. الشره"],
-            correct: "4. الشره",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "p1_b",
-            text: "ب. تدل العبارة بديع الملامح من غير ذم على:",
-            options: ["1. الاحتقار", "2. اللوم", "3. المدح", "4. النقص"],
-            correct: "3. المدح",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "p2",
-            text: "2. ما العبرة المستفادة من القصيدة؟",
-            type: "text",
-            modelAnswer: "لا تأمن عدوك، أو لا تنخدع بالمديح الكاذب.",
-            marks: 1
-          },
-          {
-            id: "p3",
-            text: "3. بدأ الحوار بين الثعلب والغراب بالتحية. حدد البيت الدال على المعنى السابق.",
-            type: "text",
-            modelAnswer: "البيت الرابع (فحيا الغراب وقال له: سلام أيا صاحبي المحترم).",
-            marks: 1
-          },
-          {
-            id: "p4",
-            text: "4. وضح الصورة الجمالية في قول الشاعر : ( يهيج حشاه بمثل الضرم).",
-            type: "text",
-            modelAnswer: "شبه الشاعر الحشا (الجوع) بالنار المشتعلة.",
-            marks: 1
-          },
-          {
-            id: "p5",
-            text: "5. استخدم الشاعر ألفاظا تنتمي لمعجم الجمال في البيت السادس. استخرج اثنين منها.",
-            type: "text",
-            modelAnswer: "زاهي - الجمال - جميل (يكتفى باثنين).",
-            marks: 1
-          },
-          {
-            id: "p6",
-            text: "6. تنتمي القصيدة إلى الشعر القصصي. حدد عناصر القصة (المكان والشخصيات):",
-            type: "text",
-            modelAnswer: "المكان: دوحة أو غصن. الشخصيات: الغراب والثعلب.",
-            marks: 2
-          },
-          {
-            id: "p7",
-            text: "7. ما الشخصية التي لم تعجبك في القصيدة؟ ولماذا؟",
-            type: "text",
-            modelAnswer: "تحديد الشخصية (الثعلب للمكر أو الغراب للغرور) مع التعليل.",
-            marks: 2
-          }
-        ]
-      },
-      {
-        id: "hifz",
-        title: "ثانياً: النصوص الأدبية: السؤال الثالث (الحفظ) (درجتان)",
-        passage: "اكتب من حفظك البيتين المكملين للبيت الآتي من نص نصائح طبيب على الترتيب:\nفخذ بعض النصائح من طبيب ... بتطبيب الورى أضحى فهيما",
-        questions: [
-          {
-            id: "h1",
-            text: "اكتب البيتين المكملين:",
-            type: "text",
-            modelAnswer: "1. إذا ما كنت ذا جسم سليم ... ستؤتى هكذا عقلاً سليماً\n2. فراقب صحة البدن المعافى ... ولا تتركه معتلاً سقيماً",
-            marks: 2
-          }
-        ]
-      },
-      {
-        id: "grammar",
-        title: "ثالثاً: النحو والصرف (10 درجات)",
-        passage: "كانت عُمان معروفة منذ القدم بتاريخها العريق وحضارتها الراسخة، وأصبحت اليوم دولة متطورة وحديثة في شتى المجالات، كما أنّ طبيعة عُمان جميلة جدا بجبالها الشامخة وشواطئها الممتدة، ولكن الأجمل من ذلك كله كرم أهلها وحبهم للضيف وترحيبهم به.",
-        questions: [
-          {
-            id: "g1_a",
-            text: "1. استخرج من الفقرة السابقة ما يأتي:\nأ. فعلاً ناسخاً:",
-            type: "text",
-            modelAnswer: "كانت أو أصبحت.",
-            marks: 1
-          },
-          {
-            id: "g1_b",
-            text: "ب. اسم أن:",
-            type: "text",
-            modelAnswer: "طبيعة.",
-            marks: 1
-          },
-          {
-            id: "g2_a",
-            text: "2. أعرب الكلمة التي تحتها خط:\nأ. معروفة:",
-            type: "text",
-            modelAnswer: "خبر كانت منصوب وعلامة نصبه الفتحة.",
-            marks: 1
-          },
-          {
-            id: "g2_b",
-            text: "ب. الأجمل:",
-            type: "text",
-            modelAnswer: "اسم لكن منصوب وعلامة نصبه الفتحة.",
-            marks: 1
-          },
-          {
-            id: "g3",
-            text: "3. (أكمل) يأتي اسم كان مرفوعاً ويأتي خبرها ...",
-            type: "text",
-            modelAnswer: "منصوباً.",
-            marks: 1
-          },
-          {
-            id: "g4_a",
-            text: "4. اختر الإجابة الصحيحة من بين البدائل المعطاة:\nأ. يأتي خبر إن:",
-            options: ["1. مرفوعا", "2. منصوبا", "3. مجرورا", "4. مجزوما"],
-            correct: "1. مرفوعا",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "g4_b",
-            text: "ب. الكلمات الآتية أفعال ناسخة ما عدا:",
-            options: ["1. أصبح", "2. أضحى", "3. صار", "4. ليت"],
-            correct: "4. ليت",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "g4_c",
-            text: "ج. كان (الشتاء) باردا هذا العام. العلامة الإعرابية للكلمة التي بين القوسين هي:",
-            options: ["1. الفتحة", "2. الكسرة", "3. الضمة", "4. السكون"],
-            correct: "3. الضمة",
-            marks: 0.5,
-            type: "mcq"
-          },
-          {
-            id: "g4_d",
-            text: "د. ليت (الأحلام) تتحقق. الضبط الصحيح للكلمة التي بين القوسين هو:",
-            options: ["1. الأحلامَ", "2. الأحلامُ", "3. الأحلامِ", "4. الأحلامْ"],
-            correct: "1. الأحلامَ",
-            marks: 0.5,
-            type: "mcq"
-          },
-          {
-            id: "g5",
-            text: "5. أدخل حرفاً ناسخاً على الجملة الآتية وغير ما يلزم: (الاختبار سهل)",
-            type: "text",
-            modelAnswer: "إنّ الاختبارَ سهلٌ (أو لعل/ليت مع نصب المبتدأ).",
-            marks: 1
-          },
-          {
-            id: "g6",
-            text: "6. صوب الخطأ الوارد في الجملة الآتية: (إنّ العلمُ نورٌ)",
-            type: "text",
-            modelAnswer: "التصويب: إنّ العلمَ نورٌ.",
-            marks: 1
-          }
-        ]
-      },
-      {
-        id: "spelling",
-        title: "رابعاً: الإملاء والترقيم (8 درجات)",
-        passage: "سعى سالم إلى تحقيق أحلامه بالعلم ( ) لأن العلم هو الطريق إلى النجاح، ودعا الله أن يوفقه في طلب العلم منطلقا في ذلك من قول الرسول عليه الصلاة والسلام : ( ) \"من سلك طريقا يلتمس فيه علما سهل الله له طريقا إلى الجنة\".",
-        questions: [
-          {
-            id: "s1",
-            text: "1. ضع علامة الترقيم المناسبة بين الأقواس في الفقرة السابقة:",
-            type: "text",
-            modelAnswer: "الأولى: ؛ (فاصلة منقوطة) الثانية: : (نقطتان رأسيتان).",
-            marks: 2
-          },
-          {
-            id: "s2_a",
-            text: "2. استخرج من الفقرة السابقة ما يأتي:\nأ. فعلاً ثلاثياً منتهياً بألف مقصورة:",
-            type: "text",
-            modelAnswer: "سعى.",
-            marks: 1
-          },
-          {
-            id: "s2_b",
-            text: "ب. فعلاً ثلاثياً منتهياً بألف ممدودة:",
-            type: "text",
-            modelAnswer: "دعا.",
-            marks: 1
-          },
-          {
-            id: "s3",
-            text: "3. تكتب الألف في الأفعال الثلاثية مقصورة إذا كان أصلها ... (أكمل):",
-            type: "text",
-            modelAnswer: "ياءً.",
-            marks: 1
-          },
-          {
-            id: "s4_a",
-            text: "4. اختر الإجابة الصحيحة من بين البدائل المعطاة:\nأ. مضارع الفعل (رجا) هو:",
-            options: ["1. يرجا", "2. يرجي", "3. يرجو", "4. يرجى"],
-            correct: "3. يرجو",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "s4_b",
-            text: "ب. تكتب الألف في الأفعال الثلاثية ممدودة إذا كان أصلها:",
-            options: ["1. واواً", "2. ألفاً", "3. ياءً", "4. همزة"],
-            correct: "1. واواً",
-            marks: 1,
-            type: "mcq"
-          },
-          {
-            id: "s5",
-            text: "5. استلقا المريض على سريره، حدد الخطأ الوارد في الجملة السابقة ثم صوبه.",
-            type: "text",
-            modelAnswer: "الخطأ: استلقا - التصويب: استلقى.",
-            marks: 1
-          }
-        ]
-      }
-    ]
-  };
-
-  const handleAnswer = (questionId, option) => {
-    setAnswers({ ...answers, [questionId]: option });
-  };
-
-  const handleTextChange = (questionId, value) => {
-    setTextAnswers({ ...textAnswers, [questionId]: value });
-  };
-
-  const calculateScore = () => {
-    let score = 0;
-    examData.sections.forEach(section => {
-      section.questions.forEach(q => {
-        if (q.type === 'mcq') {
-          if (answers[q.id] === q.correct) score += q.marks;
-        } else {
-          // For text questions, we award the marks if the user wrote more than 3 characters
-          // since it's a simulation of effort, but we show the model answer in result
-          if (textAnswers[q.id] && textAnswers[q.id].trim().length > 3) {
-            score += q.marks;
-          }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>امتحان اللغة العربية - الصف الخامس</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background-color: #f8fafc;
         }
-      });
-    });
-    return score;
-  };
+        .step-content { display: none; }
+        .step-active { display: block; }
+        .transition-all { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="text-slate-800 leading-relaxed">
 
-  const isAllAnswered = () => {
-    const totalQuestions = examData.sections.reduce((acc, section) => acc + section.questions.length, 0);
-    const answeredCount = Object.keys(answers).length + Object.keys(textAnswers).length;
-    return answeredCount === totalQuestions;
-  };
+    <!-- Container -->
+    <div id="app" class="min-h-screen flex flex-col">
 
-  if (currentStep === 'intro') {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-right" dir="rtl">
-        <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-10 border border-slate-200">
-          <div className="text-center space-y-6">
-            <div className="bg-blue-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-lg">
-              <Award className="text-white w-14 h-14" />
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="step-content step-active flex-1 flex items-center justify-center p-4">
+            <div class="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-10 border border-slate-200 text-center space-y-6">
+                <div class="bg-blue-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="text-white w-14 h-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                </div>
+                <h1 class="text-4xl font-black text-slate-900">امتحان مادة اللغة العربية - الصف الخامس</h1>
+                <p class="text-xl text-slate-500 font-medium">الفصل الدراسي الثاني - الدور الأول (صباحي) 2024/2025</p>
+                <div class="bg-slate-50 rounded-2xl p-6 grid grid-cols-2 gap-6 border border-slate-100">
+                    <div>
+                        <span class="block text-sm text-slate-400 mb-1 font-bold">الدرجة الكلية</span>
+                        <span class="text-3xl font-black text-blue-600">40 درجة</span>
+                    </div>
+                    <div>
+                        <span class="block text-sm text-slate-400 mb-1 font-bold">الزمن المحدد</span>
+                        <span class="text-3xl font-black text-blue-600">ساعتان</span>
+                    </div>
+                </div>
+                <button onclick="startExam()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-2xl hover:bg-blue-700 transition-all transform hover:scale-[1.01] shadow-xl flex items-center justify-center gap-3">
+                    ابدأ الامتحان الآن
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
             </div>
-            <h1 className="text-4xl font-extrabold text-slate-900">{examData.title}</h1>
-            <p className="text-xl text-slate-500 font-medium">{examData.subtitle}</p>
-            <div className="bg-slate-50 rounded-2xl p-6 grid grid-cols-2 gap-6 border border-slate-100">
-              <div className="text-center">
-                <span className="block text-sm text-slate-400 mb-1">الدرجة الكلية</span>
-                <span className="text-3xl font-bold text-blue-600">40 درجة</span>
-              </div>
-              <div className="text-center">
-                <span className="block text-sm text-slate-400 mb-1">الزمن المحدد</span>
-                <span className="text-3xl font-bold text-blue-600">ساعتان</span>
-              </div>
-            </div>
-            <button 
-              onClick={() => setCurrentStep('quiz')}
-              className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold text-2xl hover:bg-blue-700 transition-all transform hover:scale-[1.01] shadow-xl flex items-center justify-center gap-3"
-            >
-              ابدأ الامتحان الآن
-              <ChevronLeft size={30} />
-            </button>
-          </div>
         </div>
-      </div>
-    );
-  }
 
-  if (currentStep === 'result') {
-    const score = calculateScore();
-    const percentage = (score / examData.totalMarks) * 100;
-
-    return (
-      <div className="min-h-screen bg-slate-50 p-6 font-sans text-right" dir="rtl">
-        <div className="max-w-4xl mx-auto space-y-10">
-          <div className="bg-white rounded-3xl shadow-xl p-10 text-center border border-slate-200 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-3 bg-blue-600"></div>
-            <h2 className="text-4xl font-black text-slate-900 mb-8">تقرير النتيجة النهائي</h2>
-            
-            <div className="flex flex-col md:flex-row items-center justify-center gap-12 mb-10">
-              <div className="relative w-48 h-48">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="96" cy="96" r="80" stroke="currentColor" strokeWidth="16" fill="transparent" className="text-slate-100" />
-                  <circle cx="96" cy="96" r="80" stroke="currentColor" strokeWidth="16" fill="transparent" strokeDasharray={502.6} strokeDashoffset={502.6 - (502.6 * percentage) / 100} className="text-blue-600 transition-all duration-1000" />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-5xl font-black text-slate-900">{score}</span>
-                  <span className="text-lg text-slate-400">من 40</span>
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="step-content">
+            <!-- Header Progress -->
+            <div class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 p-4 shadow-sm">
+                <div class="max-w-4xl mx-auto flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900">امتحان اللغة العربية ✍️</h2>
+                        <p id="progress-text" class="text-xs text-slate-400 font-bold">تم حل 0 من 30 سؤال</p>
+                    </div>
+                    <button id="submit-btn" onclick="finishExam()" disabled class="px-8 py-3 rounded-xl font-black transition-all bg-slate-200 text-slate-400 cursor-not-allowed">
+                        تسليم الورقة
+                    </button>
                 </div>
-              </div>
-              <div className="text-right flex-1">
-                <div className={`text-3xl font-bold p-4 rounded-2xl border-2 text-center mb-4 ${percentage >= 50 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
-                  {percentage >= 90 ? 'ممتاز جداً 🌟' : percentage >= 75 ? 'جيد جداً 👍' : percentage >= 50 ? 'ناجح ✅' : 'تحتاج للمذاكرة 📚'}
+                <div class="max-w-4xl mx-auto mt-4 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-700 w-0"></div>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
-                  <p className="text-slate-400 text-sm">النسبة المئوية</p>
-                  <p className="text-3xl font-bold text-slate-800">{percentage.toFixed(1)}%</p>
-                </div>
-              </div>
             </div>
 
-            <button 
-              onClick={() => {setAnswers({}); setTextAnswers({}); setCurrentStep('intro');}}
-              className="py-4 px-12 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-black transition-all flex items-center gap-3 mx-auto"
-            >
-              <RefreshCcw size={24} />
-              إعادة الامتحان
-            </button>
-          </div>
+            <main id="questions-container" class="max-w-4xl mx-auto p-4 md:p-8 space-y-16 mt-8">
+                <!-- Questions injected here via JS -->
+            </main>
+        </div>
 
-          <div className="bg-white rounded-3xl shadow-xl p-8 border border-slate-200">
-            <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
-              <Eye className="text-blue-600" size={30} />
-              مراجعة الأجوبة والنموذج الرسمي
-            </h3>
-            <div className="space-y-8">
-              {examData.sections.map(section => (
-                <div key={section.id} className="space-y-4">
-                  <h4 className="bg-slate-800 text-white p-3 rounded-lg font-bold">{section.title}</h4>
-                  <div className="grid gap-4">
-                    {section.questions.map((q) => (
-                      <div key={q.id} className="p-6 rounded-2xl border-2 border-slate-100 bg-white shadow-sm">
-                        <p className="font-bold text-slate-800 mb-4 whitespace-pre-line leading-relaxed">{q.text}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <p className="text-xs text-slate-400 mb-2 font-bold">إجابتك:</p>
-                            <p className="font-medium text-slate-700">{q.type === 'mcq' ? (answers[q.id] || "لم يتم الحل") : (textAnswers[q.id] || "لم يتم الحل")}</p>
-                          </div>
-                          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                            <p className="text-xs text-blue-500 mb-2 font-bold">نموذج الإجابة:</p>
-                            <p className="font-bold text-blue-800">{q.type === 'mcq' ? q.correct : q.modelAnswer}</p>
-                          </div>
+        <!-- Result Screen -->
+        <div id="result-screen" class="step-content p-6">
+            <div class="max-w-4xl mx-auto space-y-10">
+                <div class="bg-white rounded-3xl shadow-xl p-10 text-center border border-slate-200 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-3 bg-blue-600"></div>
+                    <h2 class="text-4xl font-black text-slate-900 mb-8">تقرير النتيجة النهائية</h2>
+                    
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-12 mb-10">
+                        <div class="relative w-48 h-48 flex items-center justify-center border-[16px] border-slate-100 rounded-full">
+                            <div id="score-circle" class="absolute inset-0 border-[16px] border-blue-600 rounded-full" style="clip-path: inset(0 0 0 0);"></div>
+                            <div class="text-center z-10">
+                                <span id="final-score" class="text-5xl font-black text-slate-900">0</span>
+                                <span class="text-lg text-slate-400 block font-bold">من 40</span>
+                            </div>
                         </div>
-                        <div className="mt-4 flex justify-between items-center border-t border-slate-50 pt-4">
-                          <span className="text-sm font-black text-slate-500">الدرجة: {q.type === 'mcq' ? (answers[q.id] === q.correct ? q.marks : 0) : (textAnswers[q.id]?.length > 3 ? q.marks : 0)} / {q.marks}</span>
-                          {(q.type === 'mcq' ? answers[q.id] === q.correct : (textAnswers[q.id]?.length > 3)) ? <CheckCircle className="text-green-500" /> : <XCircle className="text-red-400" />}
+                        <div class="text-right flex-1 space-y-4">
+                            <div id="grade-badge" class="text-3xl font-black p-4 rounded-2xl border-2 text-center bg-blue-50 border-blue-200 text-blue-700">
+                                ناجح ✅
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
+                                <p class="text-slate-400 text-sm font-bold">النسبة المئوية</p>
+                                <p id="final-percentage" class="text-3xl font-black text-slate-800">0%</p>
+                            </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-50 pb-24 font-sans text-right" dir="rtl">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 p-4 shadow-sm">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">امتحان مادة اللغة العربية</h2>
-            <p className="text-xs text-slate-400 font-bold">تم حل {Object.keys(answers).length + Object.keys(textAnswers).length} من {examData.sections.reduce((a, s) => a + s.questions.length, 0)} سؤال</p>
-          </div>
-          <button 
-            disabled={!isAllAnswered()}
-            onClick={() => setCurrentStep('result')}
-            className={`px-8 py-3 rounded-xl font-black transition-all ${isAllAnswered() ? 'bg-green-600 text-white hover:bg-green-700 shadow-md' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
-          >
-            تسليم الورقة
-          </button>
-        </div>
-        <div className="max-w-4xl mx-auto mt-4 h-2 bg-slate-100 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-blue-600 transition-all duration-700" 
-            style={{ width: `${((Object.keys(answers).length + Object.keys(textAnswers).length) / examData.sections.reduce((a, s) => a + s.questions.length, 0)) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
-      <main className="max-w-4xl mx-auto p-4 md:p-8 space-y-16 mt-8">
-        {examData.sections.map((section) => (
-          <section key={section.id} className="space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="bg-slate-900 text-white p-3 rounded-xl shadow-lg">
-                <BookOpen size={24} />
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 border-b-4 border-blue-600 pb-1">{section.title}</h3>
-            </div>
-
-            {section.passage && (
-              <div className="bg-white border-r-8 border-blue-600 p-8 rounded-2xl shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-2 opacity-5">
-                   <Edit3 size={100} />
-                </div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-slate-400 text-sm uppercase">نص الفقرة:</h4>
-                  <button onClick={() => setShowPassage(!showPassage)} className="text-xs text-blue-600 underline font-black">
-                    {showPassage ? 'إخفاء النص' : 'إظهار النص'}
-                  </button>
-                </div>
-                {showPassage && (
-                  <p className="text-slate-800 leading-relaxed whitespace-pre-line text-xl font-medium font-serif italic">
-                    {section.passage}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="grid gap-10">
-              {section.questions.map((q, idx) => (
-                <div key={q.id} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-blue-100 transition-all duration-300">
-                  <div className="flex items-start gap-5 mb-8">
-                    <span className="bg-blue-50 text-blue-600 w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 font-black text-lg border border-blue-100">
-                      {idx + 1}
-                    </span>
-                    <div className="flex-1">
-                      <p className="text-xl font-bold text-slate-800 leading-normal whitespace-pre-line">{q.text}</p>
-                      <span className="text-xs font-bold text-blue-500 mt-2 block tracking-widest uppercase">الدرجة: {q.marks}</span>
                     </div>
-                  </div>
 
-                  {q.type === 'mcq' ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {q.options.map((option, oIdx) => (
-                        <button
-                          key={oIdx}
-                          onClick={() => handleAnswer(q.id, option)}
-                          className={`p-5 rounded-2xl text-right transition-all border-2 flex items-center justify-between group
-                            ${answers[q.id] === option 
-                              ? 'bg-blue-600 border-blue-600 text-white shadow-md' 
-                              : 'bg-slate-50 border-slate-50 text-slate-700 hover:bg-white hover:border-blue-200'}`}
-                        >
-                          <span className="font-bold">{option}</span>
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-                            ${answers[q.id] === option ? 'border-white bg-white' : 'border-slate-300 bg-white'}`}>
-                            {answers[q.id] === option && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <textarea
-                        value={textAnswers[q.id] || ''}
-                        onChange={(e) => handleTextChange(q.id, e.target.value)}
-                        placeholder="اكتب إجابتك الكاملة هنا..."
-                        className="w-full p-6 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-blue-500 focus:bg-white outline-none min-h-[140px] font-medium text-lg transition-all"
-                      />
-                      <p className="text-xs text-slate-400 font-bold italic">
-                        * سيتم عرض نموذج الإجابة الرسمي في تقرير النتيجة النهائي بعد تسليم الورقة.
-                      </p>
-                    </div>
-                  )}
+                    <button onclick="restartExam()" class="py-4 px-12 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-black transition-all flex items-center gap-3 mx-auto">
+                        إعادة الامتحان
+                    </button>
                 </div>
-              ))}
-            </div>
-          </section>
-        ))}
 
-        {!isAllAnswered() && (
-          <div className="p-10 bg-indigo-50 rounded-3xl border-2 border-indigo-100 text-center space-y-4">
-            <AlertCircle className="text-indigo-600 mx-auto w-12 h-12" />
-            <h4 className="text-2xl font-black text-indigo-900">تنبيه هام!</h4>
-            <p className="text-indigo-600 font-bold text-lg">باقي لك بعض الأسئلة لم يتم حلها.. جاوب عليها كلها عشان تظهر لك نتيجتك النهائية من 40.</p>
-          </div>
-        )}
-      </main>
+                <div id="review-container" class="bg-white rounded-3xl shadow-xl p-8 border border-slate-200 space-y-8">
+                    <h3 class="text-2xl font-black text-slate-900 flex items-center gap-3">
+                        مراجعة الأجوبة والنموذج الرسمي
+                    </h3>
+                    <!-- Review content injected here -->
+                </div>
+            </div>
+        </div>
+
     </div>
-  );
-};
 
-export default ExamApp;
+    <script>
+        const examData = {
+            totalMarks: 40,
+            sections: [
+                {
+                    id: "reading",
+                    title: "أولاً: النصوص القرائية (10 درجات)",
+                    passage: `الرياضة مهمة جدا لصحتنا، فهي تجعل أجسامنا قوية، وتساعدنا على البقاء نشيطين، فعندما نمارس الرياضة تصبح عضلاتنا وعظامنا أقوى، كما يتحسن تدفق الدم في الجسم، مما يساعد على الوقاية من بعض الأمراض مثل: السكري وأمراض القلب. والرياضة تجعلنا نشعر بالسعادة؛ لأنها تساعد الجسم على إفراز هرمونات تمنحنا شعورا جيدا، والرياضة تعلمنا قيما مهمة مثل : التعاون والصبر والانضباط؛ مما يساعدنا في حياتنا اليومية. كما أن ممارسة الرياضة يمكن أن تفيدنا في الجانب التحصيلي والجانب الاجتماعي، أما في الجانب التحصيلي فهي تساعدنا على التركيز بشكل أفضل، وتحسين أدائنا في المدرسة، وفي الجانب الاجتماعي فإن ممارسة الرياضة مع الأصدقاء تساعدنا على تكوين صداقات جديدة، وتعلمنا كيفية التعامل مع الآخرين والتعاون معهم لتحقيق الفوز. وتوجد أنواع كثيرة من الرياضة مثل كرة القدم وكرة السلة وكرة التنس والسباحة، وركوب الدراجات والجري، ويمكن لكل شخص أن يختار الرياضة التي يحبها ويمارسها بانتظام، وكذلك الأنشطة البسيطة كالقفز على الحبل أو المشي يوميا. لذلك يجب أن نجعل الرياضة جزءا من حياتنا؛ لأنها تجعلنا أكثر صحة وسعادة وتساعدنا على النجاح في دراستنا وحياتنا.`,
+                    questions: [
+                        { id: "q1_a", text: "1. اختر الإجابة الصحيحة من بين البدائل المعطاة:\nأ. وردت في الفقرة الأولى من النص السابق كلمة (الوقاية) وتعني:", options: ["1. الإضرار", "2. المضاعفة", "3. الحماية", "4. الإصابة"], correct: "3. الحماية", marks: 1, type: "mcq" },
+                        { id: "q1_b", text: "ب. تكوين صداقات جديدة. كلمة (صداقات) جمع مفردها:", options: ["1. صداقة", "2. صادقة", "3. صادق", "4. صدوق"], correct: "1. صداقة", marks: 1, type: "mcq" },
+                        { id: "q2", text: "2. استنتج الفكرة العامة للنص السابق.", type: "text", modelAnswer: "أهمية الرياضة وأنواعها وفوائدها (أو ما يكتبه الطالب ويكون متوافقاً مع الفكرة).", marks: 1 },
+                        { id: "q3", text: "3. للرياضة أنواع كثيرة وأنشطة متعددة. ما الفقرة الدالة على ذلك من النص السابق؟", type: "text", modelAnswer: "الفقرة الرابعة (4) أو الأخيرة.", marks: 1 },
+                        { id: "q4", text: "4. لماذا يجب أن نجعل الرياضة جزءا من حياتنا كما ورد في الفقرة الرابعة؟", type: "text", modelAnswer: "لأنها تجعلنا أكثر صحة وسعادة وتساعدنا على النجاح في دراستنا وحياتنا.", marks: 2 },
+                        { id: "q5", text: "5. لممارسة الرياضة فوائد في الجانب التحصيلي والجانب الاجتماعي من خلال فهمك للفقرة الثالثة أكمل الجدول الآتي:", type: "text", modelAnswer: "التحصيلي: تساعد على التركيز وتحسين الأداء المدرسي. الاجتماعي: تكوين صداقات جديدة والتعاون مع الآخرين.", marks: 2 },
+                        { id: "q6", text: "6. ما الرياضة التي تفضلها؟ ولماذا؟", type: "text", modelAnswer: "يقبل أي رأي منطقي للطالب مع التعليل.", marks: 2 }
+                    ]
+                },
+                {
+                    id: "poetry",
+                    title: "ثانياً: النصوص الأدبية (10 درجات)",
+                    passage: `1. إلى دوحة قد أوى مَرَّةً ... غراب وفي غصنها قدْ جَثَمْ\n2. وكانت بمنقاره جبنة ... يهش إلى أكلها ذو النَّهَمْ\n3. فوافاه مُسْتَرْوِحًا ثَعْلَبٌ ... يهيج حشاه بمثل الصِّرَم\n4. فحيا الغراب وقالَ لَهُ: ... "سلام أيا صاحبي المحترم"\n5. لَعَمْرِي إِنَّكَ باهرُ شَكْلِ ... بديع الملامح مِنْ غير ذم\n6. وريشك زاهي الجمال فأنتَ ... جميلٌ مِنَ الرَّأْسِ حَتَّى القَدَم`,
+                    questions: [
+                        { id: "p1_a", text: "1. اختر الإجابة الصحيحة:\nأ. عبارة (ذو النهم) الواردة في البيت الثاني تدل على:", options: ["1. المهموم", "2. الشبعان", "3. النائم", "4. الشره"], correct: "4. الشره", marks: 1, type: "mcq" },
+                        { id: "p1_b", text: "ب. تدل العبارة بديع الملامح من غير ذم على:", options: ["1. الاحتقار", "2. اللوم", "3. المدح", "4. النقص"], correct: "3. المدح", marks: 1, type: "mcq" },
+                        { id: "p2", text: "2. ما العبرة المستفادة من القصيدة؟", type: "text", modelAnswer: "لا تأمن عدوك، أو لا تنخدع بالمديح الكاذب.", marks: 1 },
+                        { id: "p3", text: "3. بدأ الحوار بين الثعلب والغراب بالتحية. حدد البيت الدال على المعنى السابق.", type: "text", modelAnswer: "البيت الرابع.", marks: 1 },
+                        { id: "p4", text: "4. وضح الصورة الجمالية في قول الشاعر : ( يهيج حشاه بمثل الضرم).", type: "text", modelAnswer: "شبه الشاعر الحشا (الجوع) بالنار المشتعلة.", marks: 1 },
+                        { id: "p5", text: "5. استخدم الشاعر ألفاظا تنتمي لمعجم الجمال في البيت السادس. استخرج اثنين منها.", type: "text", modelAnswer: "زاهي - الجمال - جميل.", marks: 1 },
+                        { id: "p6", text: "6. تنتمي القصيدة إلى الشعر القصصي. حدد عناصر القصة (المكان والشخصيات):", type: "text", modelAnswer: "المكان: دوحة أو غصن. الشخصيات: الغراب والثعلب.", marks: 2 },
+                        { id: "p7", text: "7. ما الشخصية التي لم تعجبك في القصيدة؟ ولماذا؟", type: "text", modelAnswer: "أي تعليل منطقي.", marks: 2 }
+                    ]
+                },
+                {
+                    id: "hifz",
+                    title: "ثانياً: السؤال الثالث (الحفظ) (درجتان)",
+                    passage: "اكتب من حفظك البيتين المكملين للبيت الآتي:\nفخذ بعض النصائح من طبيب ... بتطبيب الورى أضحى فهيما",
+                    questions: [
+                        { id: "h1", text: "اكتب البيتين المكملين:", type: "text", modelAnswer: "1. إذا ما كنت ذا جسم سليم ... ستؤتى هكذا عقلاً سليماً\n2. فراقب صحة البدن المعافى ... ولا تتركه معتلاً سقيماً", marks: 2 }
+                    ]
+                },
+                {
+                    id: "grammar",
+                    title: "ثالثاً: النحو والصرف (10 درجات)",
+                    passage: "كانت عُمان معروفة منذ القدم بتاريخها العريق وحضارتها الراسخة، وأصبحت اليوم دولة متطورة وحديثة في شتى المجالات، كما أنّ طبيعة عُمان جميلة جدا بجبالها الشامخة وشواطئها الممتدة، ولكن الأجمل من ذلك كله كرم أهلها وحبهم للضيف وترحيبهم به.",
+                    questions: [
+                        { id: "g1_a", text: "1. استخرج من الفقرة:\nأ. فعلاً ناسخاً:", type: "text", modelAnswer: "كانت أو أصبحت.", marks: 1 },
+                        { id: "g1_b", text: "ب. اسم أن:", type: "text", modelAnswer: "طبيعة.", marks: 1 },
+                        { id: "g2_a", text: "2. أعرب (معروفة):", type: "text", modelAnswer: "خبر كانت منصوب وعلامة نصبه الفتحة.", marks: 1 },
+                        { id: "g2_b", text: "ب. أعرب (الأجمل):", type: "text", modelAnswer: "اسم لكن منصوب وعلامة نصبه الفتحة.", marks: 1 },
+                        { id: "g3", text: "3. (أكمل) يأتي اسم كان مرفوعاً ويأتي خبرها ...", type: "text", modelAnswer: "منصوباً.", marks: 1 },
+                        { id: "g4_a", text: "4. اختر الإجابة الصحيحة:\nأ. يأتي خبر إن:", options: ["1. مرفوعا", "2. منصوبا", "3. مجرورا", "4. مجزوما"], correct: "1. مرفوعا", marks: 1, type: "mcq" },
+                        { id: "g4_b", text: "ب. الكلمات الآتية أفعال ناسخة ما عدا:", options: ["1. أصبح", "2. أضحى", "3. صار", "4. ليت"], correct: "4. ليت", marks: 1, type: "mcq" },
+                        { id: "g4_c", text: "ج. كان (الشتاء) باردا. العلامة الإعرابية للكلمة التي بين القوسين هي:", options: ["1. الفتحة", "2. الكسرة", "3. الضمة", "4. السكون"], correct: "3. الضمة", marks: 0.5, type: "mcq" },
+                        { id: "g4_d", text: "د. ليت (الأحلام) تتحقق. الضبط الصحيح للكلمة هو:", options: ["1. الأحلامَ", "2. الأحلامُ", "3. الأحلامِ", "4. الأحلامْ"], correct: "1. الأحلامَ", marks: 0.5, type: "mcq" },
+                        { id: "g5", text: "5. أدخل حرفاً ناسخاً على (الاختبار سهل):", type: "text", modelAnswer: "إنّ الاختبارَ سهلٌ.", marks: 1 },
+                        { id: "g6", text: "6. صوب الخطأ: (إنّ العلمُ نورٌ)", type: "text", modelAnswer: "التصويب: العلمَ.", marks: 1 }
+                    ]
+                },
+                {
+                    id: "spelling",
+                    title: "رابعاً: الإملاء والترقيم (8 درجات)",
+                    passage: "سعى سالم إلى تحقيق أحلامه بالعلم ( ) لأن العلم هو الطريق إلى النجاح، ودعا الله أن يوفقه في طلب العلم منطلقا في ذلك من قول الرسول عليه الصلاة والسلام : ( ) \"من سلك طريقا يلتمس فيه علما سهل الله له طريقا إلى الجنة\".",
+                    questions: [
+                        { id: "s1", text: "1. ضع علامات الترقيم المناسبة بالترتيب:", type: "text", modelAnswer: "؛ (فاصلة منقوطة) و : (نقطتان رأسيتان).", marks: 2 },
+                        { id: "s2_a", text: "أ. استخرج فعلاً ثلاثياً منتهياً بألف مقصورة:", type: "text", modelAnswer: "سعى.", marks: 1 },
+                        { id: "s2_b", text: "ب. استخرج فعلاً ثلاثياً منتهياً بألف ممدودة:", type: "text", modelAnswer: "دعا.", marks: 1 },
+                        { id: "s3", text: "3. تكتب الألف في الأفعال الثلاثية مقصورة إذا كان أصلها ...", type: "text", modelAnswer: "ياءً.", marks: 1 },
+                        { id: "s4_a", text: "4. مضارع الفعل (رجا) هو:", options: ["1. يرجو", "2. يرجا", "3. يرجي", "4. يرجى"], correct: "1. يرجو", marks: 1, type: "mcq" },
+                        { id: "s4_b", text: "ب. تكتب الألف في الأفعال الثلاثية ممدودة إذا كان أصلها:", options: ["1. واواً", "2. ألفاً", "3. ياءً", "4. همزة"], correct: "1. واواً", marks: 1, type: "mcq" },
+                        { id: "s5", text: "5. استلقا المريض على سريره. حدد الخطأ وصوبه.", type: "text", modelAnswer: "الخطأ: استلقا - التصويب: استلقى.", marks: 1 }
+                    ]
+                }
+            ]
+        };
+
+        let userAnswers = {};
+        const totalQuestions = examData.sections.reduce((acc, sec) => acc + sec.questions.length, 0);
+
+        function startExam() {
+            document.getElementById('intro-screen').classList.remove('step-active');
+            document.getElementById('quiz-screen').classList.add('step-active');
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            examData.sections.forEach(section => {
+                const sectionDiv = document.createElement('section');
+                sectionDiv.className = 'space-y-8';
+                
+                let passageHTML = section.passage ? `
+                    <div class="bg-white border-r-8 border-blue-600 p-8 rounded-2xl shadow-sm relative overflow-hidden">
+                        <p class="font-bold text-slate-400 text-sm mb-4">نص الفقرة المرفقة:</p>
+                        <p class="text-slate-800 leading-relaxed whitespace-pre-line text-xl font-medium font-serif italic">${section.passage}</p>
+                    </div>` : '';
+
+                sectionDiv.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="bg-slate-900 text-white p-3 rounded-xl shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-900 border-b-4 border-blue-600 pb-1">${section.title}</h3>
+                    </div>
+                    ${passageHTML}
+                    <div class="grid gap-10"></div>
+                `;
+
+                const qGrid = sectionDiv.querySelector('.grid');
+                section.questions.forEach((q, idx) => {
+                    const qDiv = document.createElement('div');
+                    qDiv.className = 'bg-white p-8 rounded-3xl shadow-sm border border-slate-100 transition-all duration-300';
+                    
+                    let inputHTML = '';
+                    if (q.type === 'mcq') {
+                        inputHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                            ${q.options.map(opt => `
+                                <button onclick="selectMCQ('${q.id}', '${opt}')" id="btn-${q.id}-${opt}" class="q-opt p-5 rounded-2xl text-right transition-all border-2 border-slate-50 bg-slate-50 text-slate-700 hover:bg-white hover:border-blue-200 font-bold flex items-center justify-between">
+                                    <span>${opt}</span>
+                                    <div class="dot w-5 h-5 rounded-full border-2 border-slate-300 bg-white"></div>
+                                </button>
+                            `).join('')}
+                        </div>`;
+                    } else {
+                        inputHTML = `<div class="space-y-4 mt-6">
+                            <textarea oninput="handleTextChange('${q.id}', this.value)" placeholder="اكتب إجابتك الكاملة هنا..." class="w-full p-6 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-blue-500 focus:bg-white outline-none min-h-[140px] font-medium text-lg transition-all"></textarea>
+                        </div>`;
+                    }
+
+                    qDiv.innerHTML = `
+                        <div class="flex items-start gap-5">
+                            <span class="bg-blue-50 text-blue-600 w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 font-black text-lg border border-blue-100">${idx + 1}</span>
+                            <div class="flex-1">
+                                <p class="text-xl font-bold text-slate-800 whitespace-pre-line">${q.text}</p>
+                                <span class="text-xs font-black text-blue-500 mt-2 block tracking-widest uppercase">الدرجة: ${q.marks}</span>
+                            </div>
+                        </div>
+                        ${inputHTML}
+                    `;
+                    qGrid.appendChild(qDiv);
+                });
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        function selectMCQ(qid, opt) {
+            userAnswers[qid] = opt;
+            // UI Update
+            const btns = document.querySelectorAll(`[id^="btn-${qid}-"]`);
+            btns.forEach(b => {
+                b.classList.remove('bg-blue-600', 'border-blue-600', 'text-white');
+                b.querySelector('.dot').classList.remove('bg-blue-600', 'border-white');
+            });
+            const selected = document.getElementById(`btn-${qid}-${opt}`);
+            selected.classList.add('bg-blue-600', 'border-blue-600', 'text-white');
+            selected.querySelector('.dot').classList.add('bg-blue-600', 'border-white');
+            updateProgress();
+        }
+
+        function handleTextChange(qid, val) {
+            if (val.trim()) {
+                userAnswers[qid] = val;
+            } else {
+                delete userAnswers[qid];
+            }
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const count = Object.keys(userAnswers).length;
+            const pct = (count / totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('progress-text').innerText = `تم حل ${count} من ${totalQuestions} سؤال`;
+            
+            const submitBtn = document.getElementById('submit-btn');
+            if (count === totalQuestions) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-slate-200', 'text-slate-400');
+                submitBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-700');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('bg-slate-200', 'text-slate-400');
+            }
+        }
+
+        function finishExam() {
+            let score = 0;
+            examData.sections.forEach(sec => {
+                sec.questions.forEach(q => {
+                    if (q.type === 'mcq') {
+                        if (userAnswers[q.id] === q.correct) score += q.marks;
+                    } else {
+                        if (userAnswers[q.id] && userAnswers[q.id].length > 3) score += q.marks;
+                    }
+                });
+            });
+
+            const pct = (score / 40) * 100;
+            document.getElementById('quiz-screen').classList.remove('step-active');
+            document.getElementById('result-screen').classList.add('step-active');
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-percentage').innerText = pct.toFixed(1) + '%';
+            
+            const badge = document.getElementById('grade-badge');
+            if (pct >= 90) badge.innerText = 'ممتاز جداً 🌟';
+            else if (pct >= 75) badge.innerText = 'جيد جداً 👍';
+            else if (pct >= 50) badge.innerText = 'ناجح ✅';
+            else badge.innerText = 'تحتاج للمذاكرة 📚';
+
+            renderReview();
+        }
+
+        function renderReview() {
+            const container = document.getElementById('review-container');
+            // Remove previous items but keep header
+            const header = container.querySelector('h3');
+            container.innerHTML = '';
+            container.appendChild(header);
+
+            examData.sections.forEach(sec => {
+                const secH = document.createElement('h4');
+                secH.className = 'bg-slate-800 text-white p-3 rounded-lg font-bold text-sm';
+                secH.innerText = sec.title;
+                container.appendChild(secH);
+
+                sec.questions.forEach(q => {
+                    const rev = document.createElement('div');
+                    rev.className = 'p-6 rounded-2xl border-2 border-slate-100 bg-white shadow-sm space-y-4';
+                    
+                    const isCorrect = q.type === 'mcq' ? (userAnswers[q.id] === q.correct) : (userAnswers[q.id]?.length > 3);
+
+                    rev.innerHTML = `
+                        <p class="font-bold text-slate-800 whitespace-pre-line">${q.text}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <p class="text-xs text-slate-400 mb-2 font-bold">إجابتك:</p>
+                                <p class="font-medium text-slate-700">${userAnswers[q.id] || "لم يتم الحل"}</p>
+                            </div>
+                            <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <p class="text-xs text-blue-500 mb-2 font-bold">نموذج الإجابة:</p>
+                                <p class="font-bold text-blue-800">${q.type === 'mcq' ? q.correct : q.modelAnswer}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-slate-50 pt-4">
+                            <span class="text-sm font-black text-slate-500">الدرجة: ${isCorrect ? q.marks : 0} / ${q.marks}</span>
+                            <span class="${isCorrect ? 'text-green-500' : 'text-red-500'} font-bold">${isCorrect ? '✅ صحيح' : '❌ خطأ'}</span>
+                        </div>
+                    `;
+                    container.appendChild(rev);
+                });
+            });
+        }
+
+        function restartExam() {
+            userAnswers = {};
+            document.getElementById('result-screen').classList.remove('step-active');
+            document.getElementById('intro-screen').classList.add('step-active');
+            window.scrollTo(0,0);
+        }
+    </script>
+</body>
+</html>
